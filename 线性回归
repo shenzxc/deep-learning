@@ -1,0 +1,46 @@
+from mxnet import ndarray as nd
+from time import time
+a=nd.ones(shape=1000)
+b=nd.ones(shape=1000)
+start=time()
+c=nd.zeros(shape=1000)
+for i in range(1000):
+    c[i]=a[i]+b[i]
+time()-start
+# 0.5834383964538574
+start=time()
+d=a+b
+time()-start
+# 0.0009951591491699219
+a=nd.ones(shape=3)
+b=10
+a+b
+#[11. 11. 11.]
+#<NDArray 3 @cpu(0)>
+%matplotlib inline
+from IPython import display
+from matplotlib import pyplot as plt
+from mxnet import autograd
+from mxnet import ndarray as nd
+import random
+num_inputs =2
+num_examples=1000
+true_w=[2,-3.4]
+true_b=4.2
+features=nd.random.normal(scale=1,shape=(num_examples,num_inputs))
+labels= true_w[0]* features[:,0]+true_w[1]*features[:,1]*true_b
+labels+=nd.random.normal(scale=0.01,shape=labels.shape)
+feature[0], labels[0]
+(
+ #[-1.1688148  1.558071 ]
+ #<NDArray 2 @cpu(0)>,
+ 
+ #[-1.9890666]
+ #<NDArray 1 @cpu(0)>)
+ def use_svg_display():
+    display.set_matplotlib_formats('svg')
+def set_figsize(figsize=(3.5,2.5)):
+    use_svg_display()
+    plt.rcParams['figure.figsize']=figsize
+set_figsize()
+plt.scatter(features[:,1].asnumpy(), labels.asnumpy(),1);
