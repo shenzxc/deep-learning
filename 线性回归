@@ -30,7 +30,7 @@ true_b=4.2
 features=nd.random.normal(scale=1,shape=(num_examples,num_inputs))
 labels= true_w[0]* features[:,0]+true_w[1]*features[:,1]*true_b
 labels+=nd.random.normal(scale=0.01,shape=labels.shape)
-feature[0], labels[0]
+features[0], labels[0]
 (
  #[-1.1688148  1.558071 ]
  #<NDArray 2 @cpu(0)>,
@@ -44,3 +44,75 @@ def set_figsize(figsize=(3.5,2.5)):
     plt.rcParams['figure.figsize']=figsize
 set_figsize()
 plt.scatter(features[:,1].asnumpy(), labels.asnumpy(),1);
+  #读取数据集
+def data_iter(batch_size,features, labels):
+    num_examples=len(features)
+    indices=list(range(num_examples))
+    random.shuffle(indices)# Yangben样本的读取顺序是随机的
+    for i in range(0, num_examples, batch_size):
+        j=nd.array(indices[i:min(i+batch_size,num_examples)])
+        yield features.take(j),labels.take(j)#take 函数根据索引返回对应元素
+batch_size=10
+for x,y in data_iter(batch_size, features, labels):
+    print(x,y)
+    break
+
+[[ 0.38076085  0.70695055]
+ [-0.13152604  2.009889  ]
+ [-1.3360573  -0.27023232]
+ [ 0.8395475  -0.8393784 ]
+ [-0.08416124  0.06793871]
+ [-0.10506767 -1.3348365 ]
+ [ 0.38450792 -1.330772  ]
+ [ 1.7353765  -1.0301763 ]
+ [-0.10911725  0.0257536 ]
+ [ 1.733211   -0.08600121]]
+<NDArray 10x2 @cpu(0)> 
+[ -9.331633  -28.95626     1.1942918  13.665988   -1.1383451  18.8508
+  19.78822    18.186329   -0.5953832   4.6892247]
+<NDArray 10 @cpu(0)>
+w= nd.random.normal(scale=0.01,shape=(num_inputs,1))
+b=nd.zeros(shape=(1,))
+w.attach_grad()
+b.attach_grad()
+def linreg(x,w,b): 
+    return nd.dot(x,w)+b
+def squared_loss(y_hat,y):
+    return(y_hat - y.reshape(y_hat.shape)) ** 2 / 2
+def sgd(params, lr,batch_size):
+    for param in params:
+        param[:]= param - lr * param.grad / batch_size
+num_epochs=5
+net=linreg
+loss=squared_loss
+for epoch in range (num_epochs):  #训练模型一共需要num_epochs个迭代周期
+    #在每一个迭代周期中，会使用训练数据集中所有样本一次（假设样本数能够被批量大小整除）。x和y分别是小批量样本的特征和标签
+    for x, y in data_iter(batch_size, features, labels):
+        with autograd.record():
+            l=loss(net(x,w,b),y)  # l 是有关批量x和y 的损失
+        l.backward()   #小批量的损失对模型参数求梯度
+        sgd([w,b],lr,batch_size)    #使用小批量随机梯度下降迭代模型参数
+    train_l=loss(net(features,w,b),labels)
+    print('epoch %d, loss %f' %(epoch+1,train_l.mean().asnumpy()))
+epoch 1, loss 0.000048
+epoch 2, loss 0.000048
+epoch 3, loss 0.000048
+epoch 4, loss 0.000048
+epoch 5, loss 0.000048
+true_w, w
+([2, -3.4],
+ 
+ [[  1.999644]
+  [-14.280113]]
+ <NDArray 2x1 @cpu(0)>)
+ true_b,b
+ (4.2,
+ 
+ [0.00032986]
+ <NDArray 1 @cpu(0)>)
+ true_w,w
+ ([2, -3.4],
+ 
+ [[  1.999644]
+  [-14.280113]]
+ <NDArray 2x1 @cpu(0)>)
